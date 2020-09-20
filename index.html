@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container>
+          <v-dialog v-model="dialogEditar" max-width="1000">
+            <v-card>
+              <v-card-title class="headline">Editar Pessoa</v-card-title>
+
+              <v-card-text> </v-card-text>
+
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.nome" label="Nome"></v-text-field>
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.idade" label="Idade"></v-text-field>
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.peso" label="Peso"></v-text-field>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn color="blue darken-1" text @click="salvarEdicao()">
+                  Salvar
+                </v-btn>
+
+                <v-btn color="blue darken-1" text @click="dialogEditar = false">
+                  Fechar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="dialogAdicionar" max-width="1000">
+            <v-card>
+              <v-card-title class="headline">Adicionar nova pessoa
+              </v-card-title>
+
+              <v-card-text> </v-card-text>
+
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.nome" label="Nome"></v-text-field>
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.idade" label="Idade"></v-text-field>
+              <v-text-field name="name" class="ma-2" outlined dense v-model="pessoa.peso" label="Peso"></v-text-field>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn color="blue darken-1" text @click="adicionar">
+                  Salvar
+                </v-btn>
+
+                <v-btn color="blue darken-1" text @click="dialogAdicionar = false">
+                  Fechar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="dialogApagar" max-width="1000">
+            <v-card>
+              <v-card-title class="headline">Apagar Pessoa "{{pessoa.nome}}"?
+              </v-card-title>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn color="red darken-1" dark @click="removerPessoa">
+                  Apagar
+                </v-btn>
+
+                <v-btn color="blue darken-1" text @click="dialogApagar = false">
+                  Fechar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-card class="pa-4">
+            <v-row class="my-0 mx-0">
+              <v-col>
+                <h2>Lista de Pessoas</h2>
+              </v-col>
+              <v-col align="right" justify="center">
+                <v-btn color="success" @click="adicionarNovo()">Adicionar Novo
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-data-table :headers="headers" :items="pessoas" item-key="name" class="elevation-1">
+              <template v-slot:item.action="{ item }">
+                <v-icon small class="mr-2" @click="editarPessoa(item)">
+                  mdi-pencil
+                </v-icon>
+                <v-icon small class="mr-2" @click="dialogApagar = true; pessoa = item">
+                  mdi-delete
+                </v-icon>
+              </template>
+            </v-data-table>
+          </v-card>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      vuetify: new Vuetify(),
+      data() {
+        return {
+          headers: [
+            {
+              text: "Nome",
+              align: "start",
+              value: "nome",
+            },
+            {
+              text: "Idade",
+              align: "start",
+              value: "idade",
+            },
+            {
+              text: "Peso",
+              align: "start",
+              value: "peso",
+            },
+            {
+              text: "",
+              align: "start",
+              value: "action",
+            },
+          ],
+
+          pessoas: [
+            {
+              nome: "João",
+              idade: "80",
+              peso: "75KG",
+            },
+            {
+              nome: "Maria",
+              idade: "50",
+              peso: "55KG",
+            },
+            {
+              nome: "Joana",
+              idade: "55",
+              peso: "54KG",
+            },
+          ],
+
+          pessoa: {},
+          index: 0,
+
+          dialogEditar: false,
+          dialogAdicionar: false,
+          dialogApagar: false,
+        };
+      },
+      methods: {
+        editarPessoa(pessoa) {
+          this.index = this.pessoas.findIndex((x) => x === pessoa);
+          this.pessoa = Object.assign({}, pessoa);
+          this.dialogEditar = true;
+        },
+        salvarEdicao() {
+          this.$set(this.pessoas, this.index, this.pessoa);
+          this.dialogEditar = false;
+        },
+        adicionarNovo() {
+          this.dialogAdicionar = true;
+          this.pessoa = {};
+        },
+        adicionar() {
+          this.pessoas.push(this.pessoa);
+          this.dialogAdicionar = false;
+          this.pessoa = {};
+        },
+        removerPessoa() {
+          this.index = this.pessoas.findIndex(
+            (x) => x === this.pessoa
+          );
+          this.$delete(this.pessoas, this.index);
+          this.dialogApagar = false;
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>
